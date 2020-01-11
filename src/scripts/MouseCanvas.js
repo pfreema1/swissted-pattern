@@ -5,7 +5,7 @@ import { easeOutQuad, easeInOutQuad, easeOutSine, easeInOutSine } from './utils/
 export default class MouseCanvas {
     constructor() {
         this.maxAge = 120;
-        this.radius = 30;
+        this.radius = 200;
         this.trail = [];
 
 
