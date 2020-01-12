@@ -9,6 +9,13 @@ import basicDiffuseVert from '../../shaders/basicDiffuse.vert';
 import MouseCanvas from '../MouseCanvas';
 import TextCanvas from '../TextCanvas';
 import RenderTri from '../RenderTri';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { BloomPass } from 'three/examples/jsm/postprocessing/BloomPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 
 export default class WebGLView {
 	constructor(app) {
@@ -30,6 +37,23 @@ export default class WebGLView {
 		this.initMouseMoveListen();
 		this.initMouseCanvas();
 		this.initRenderTri();
+		this.initPostProcessing();
+	}
+
+	initPostProcessing() {
+		this.composer = new EffectComposer(this.renderer);
+
+		const renderPass = new RenderPass(this.scene, this.camera);
+		const fxaaPass = new ShaderPass(FXAAShader);
+		const pixelRatio = this.renderer.getPixelRatio();
+
+		fxaaPass.material.uniforms['resolution'].value.x = 1 / (window.innerWidth * pixeRatio);
+		fxaaPass.material.uniforms['resolution'].value.y = 1 / (window.innerHeight * pixeRatio);
+
+		this.composer.addPass(renderPass);
+		this.composer.addPass(fxaaPass);
+
+
 	}
 
 	initTweakPane() {
@@ -202,7 +226,14 @@ export default class WebGLView {
 		this.renderer.render(this.bgScene, this.bgCamera);
 		this.renderer.setRenderTarget(null);
 
+
+
 		this.renderer.render(this.scene, this.camera);
+
+		if (this.composer) {
+			this.composer.render();
+
+		}
 
 	}
 }
